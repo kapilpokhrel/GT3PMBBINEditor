@@ -55,4 +55,6 @@ class Editor:
         
     def __init__(self, filepath) -> None:
         self.file = open(filepath, "rb")
+        if(self.__read4Bytes(self.file) != 0x4e494250):
+            raise Exception("Unsupported File Format")
         self.__extract()
