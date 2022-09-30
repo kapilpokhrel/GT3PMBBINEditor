@@ -34,7 +34,13 @@ if __name__ == '__main__':
             break;
 
         elif event == 'Open':
-            editor = Editor(values['-FILE-'])
-            window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo_list), select_rows=[selected_texture])
+            try:
+                editor = Editor(values['-FILE-'])
+                window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo_list), select_rows=[selected_texture])
+            except Exception as e:
+                sg.popup(e)
+        
+        elif event == '-TABLE-':
+            selected_texture = values['-TABLE-'][0]
     
     window.close()
