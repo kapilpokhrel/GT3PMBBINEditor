@@ -1,6 +1,6 @@
 
 class Editor:
-    def __read4Bytes(file):
+    def __read4Bytes(self, file):
         return int.from_bytes(file.read(4), "little")
 
     def __extract(self):
@@ -54,7 +54,10 @@ class Editor:
         self.TexData_list = TexData_list
         
     def __init__(self, filepath) -> None:
-        self.file = open(filepath, "rb")
+        try:
+            self.file = open(filepath, "rb")
+        except Exception as e:
+            raise Exception(e)
         if(self.__read4Bytes(self.file) != 0x4e494250):
             raise Exception("Unsupported File Format")
         self.__extract()

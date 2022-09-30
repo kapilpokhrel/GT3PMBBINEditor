@@ -1,60 +1,40 @@
+import PySimpleGUI as sg
+from editor import Editor
 
-class Editor:
-    def __read4Bytes(file):
-        return int.from_bytes(file.read(4), "little")
+table = sg.Table(
+    values=[],
+    headings=['Name', 'Type'],
+    justification='left',
+    auto_size_columns=False,
+    col_widths=[50, 10],
+    expand_x=True,
+    expand_y=True,
+    enable_events=True,
+    key='-TABLE-',
+    display_row_numbers=True,
+    vertical_scroll_only=False,
+    select_mode=sg.TABLE_SELECT_MODE_BROWSE
+)
+layout = [
+    [sg.Text('File: '), sg.In(size=(25,1), enable_events=True ,key='-FILE-'), sg.FileBrowse()],
+    [sg.Button("Open")],
+    [table]
+]
 
-    def __extract(self):
-        file = self.file
-        file.seek(8) #Skip the 1st 8 magic bytes
-        self.texture_count = self.__read4Bytes(file)
-        self.textureinfo_offset = self.__read4Bytes(file)
+def TexInfo_to_TableValues(TexInfo):
+    return [*[[idx['name'], idx['type']] for idx in TexInfo ]]
 
-        TexInfo_list = []
-        TexData_list = {}
-        
-        pointer = self.textureinfo_offset
-        for i in range(self.texture_count):
-            file.seek(pointer)
+if __name__ == '__main__':
+    window = sg.Window("GT3PMBBINEditor", layout=layout, size=(640,480));
 
-            uncompressed_size = self.__read4Bytes(file)
-            current_textureData_pointer = self.__read4Bytes(file)
-            
-            textureData_size = 0
-            if( i < self.texture_count-1):
-                file.seek(4, 1) #Skip 4 bytes form current pos to get the pointer of next textureData
-                next_textureData_pointer = self.__read4Bytes(file)
-                textureData_size = next_textureData_pointer - current_textureData_pointer
-            else:
-                # If current texture is the last one in file, subtract from the filesize
-                file.seek(0, 2)
-                textureData_size = file.tell() - current_textureData_pointer
-            
-            file.seek(current_textureData_pointer)
-            textureData = file.read(textureData_size)
-            textureType = ""
-            textureName = ""
-            if( textureData[:2] == bytearray([0x1f, 0x8b]) ):
-                textureType = "G-Zipped"
-                textureName = "%d-%s" % ( i, textureData[10:].split(bytearray([0x00]))[0].decode() )
-            else:
-                textureType = "Uncompressed"
-                textureName = "%d-TEX1" % (i)
-            
-            TexInfo_list.append({
-                'name': textureName,
-                'type': textureType,
-                'data_size': textureData_size,
-                'uncompressed_size': uncompressed_size
-            })
-            TexData_list[textureName] = textureData
+    selected_texture = 0
+    while True:
+        event, values = window.read();
+        if event in (sg.WIN_CLOSED, 'Exit'):
+            break;
 
-            pointer += 8 #Each texture information occupy 8 bytes
-        
-        self.TexInfo_list = TexInfo_list
-        self.TexData_list = TexData_list
-        
-    def __init__(self, filepath) -> None:
-        self.file = open(filepath, "rb")
-        if(self.__read4Bytes(self.file) != 0x4e494250):
-            raise Exception("Unsupported File Format")
-        self.__extract()
+        elif event == 'Open':
+            editor = Editor(values['-FILE-'])
+            window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo_list), select_rows=[selected_texture])
+    
+    window.close()
