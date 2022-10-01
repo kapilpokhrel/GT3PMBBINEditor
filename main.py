@@ -17,7 +17,7 @@ table = sg.Table(
 )
 layout = [
     [sg.Text('File: '), sg.In(size=(25,1), enable_events=True ,key='-FILE-'), sg.FileBrowse()],
-    [sg.Button("Open")],
+    [sg.Button("Open"), sg.VerticalSeparator(), sg.Button("Up"), sg.Button("Down")],
     [table]
 ]
 
@@ -28,6 +28,7 @@ if __name__ == '__main__':
     window = sg.Window("GT3PMBBINEditor", layout=layout, size=(640,480));
 
     selected_texture = 0
+    editor = None
     while True:
         event, values = window.read();
         if event in (sg.WIN_CLOSED, 'Exit'):
@@ -40,6 +41,22 @@ if __name__ == '__main__':
             except Exception as e:
                 sg.popup(e)
         
+        elif event == 'Up':
+            index = selected_texture
+            if(index > 0 and editor != None):
+                textures = editor.TexInfo_list
+                textures[index-1], textures[index] = textures[index], textures[index-1]
+                editor.TexInfo_list = textures
+                window['-TABLE-'].update(values=TexInfo_to_TableValues(textures), select_rows=[index-1])
+
+        elif event == 'Down':
+            index = selected_texture
+            if(editor != None and index < len(editor.TexData_list)-1 ):
+                textures = editor.TexInfo_list
+                textures[index+1], textures[index] = textures[index], textures[index+1]
+                editor.TexInfo_list = textures
+                window['-TABLE-'].update(values=TexInfo_to_TableValues(textures), select_rows=[index+1])
+                
         elif event == '-TABLE-':
             selected_texture = values['-TABLE-'][0]
     
