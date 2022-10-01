@@ -7,8 +7,10 @@ class Editor:
     def __texture_NameType(self, texdata):
         if( texdata[:2] == bytearray([0x1f, 0x8b]) ):
             return "G-Zipped", texdata[10:].split(bytearray([0x00]))[0].decode()
+        elif( texdata[:3] == bytearray("Tex", 'ascii')):
+            return "Uncompressed", "Tex1"
         else:
-            return "Uncompressed", "TEX1"
+            raise Exception("Unsupported Texture Type")
     
     def __extract(self):
         file = self.file
@@ -92,15 +94,12 @@ class Editor:
             texfile.write(self.TexData[name])
     
     def add_texture(self, texture_filepath):
-        try:
-            texfile = open(texture_filepath, "rb")
-        except Exception as e:
-            raise Exception(e)
+        texfile = open(texture_filepath, "rb")
         
         data = texfile.read()
         data_size = texfile.tell()
-        type, name = self.__texture_NameType(data)
-        
+
+        type, name = self.__texture_NameType(data) 
         name = "CustomTexture%d-"%(self.__custom_texturecount) + name
 
         uncompressed_size = data_size
