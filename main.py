@@ -18,7 +18,7 @@ table = sg.Table(
 layout = [
     [sg.Text('File: '), sg.In(size=(25,1), enable_events=True ,key='-FILE-'), sg.FileBrowse()],
     [sg.Button("Open"), sg.Button("Save"), sg.VerticalSeparator(),
-        sg.Button("Extract"), sg.Button("Up"), sg.Button("Down")],
+        sg.Button("Extract"), sg.Button("Up"), sg.Button("Down"), sg.Button("Add")],
     [table]
 ]
 
@@ -67,5 +67,13 @@ if __name__ == '__main__':
         
         elif event == 'Extract':
             editor.extract_texture(selected_texture)
+        
+        elif event == 'Add':
+            try:
+                editor.add_texture(values['-FILE-'])
+                window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[editor.texture_count-1])
+            except Exception as e:
+                sg.popup(e)
+            
     
     window.close()

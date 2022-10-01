@@ -1,8 +1,15 @@
+import gzip
 
 class Editor:
     def __read4Bytes(self, file):
         return int.from_bytes(file.read(4), "little")
 
+    def __texture_NameType(self, texdata):
+        if( texdata[:2] == bytearray([0x1f, 0x8b]) ):
+            return "G-Zipped", texdata[10:].split(bytearray([0x00]))[0].decode()
+        else:
+            return "Uncompressed", "TEX1"
+    
     def __extract(self):
         file = self.file
         file.seek(8) #Skip the 1st 8 magic bytes
@@ -33,20 +40,15 @@ class Editor:
             textureData = file.read(textureData_size)
             textureType = ""
             textureName = ""
-            if( textureData[:2] == bytearray([0x1f, 0x8b]) ):
-                textureType = "G-Zipped"
-                textureName = "%d-%s" % ( i, textureData[10:].split(bytearray([0x00]))[0].decode() )
-            else:
-                textureType = "Uncompressed"
-                textureName = "%d-TEX1" % (i)
             
+            textureType, textureName = self.__texture_NameType(textureData)
             TexInfo.append({
-                'name': textureName,
+                'name': "%d-"%(i)+textureName,
                 'type': textureType,
                 'data_size': textureData_size,
                 'uncompressed_size': uncompressed_size
             })
-            TexData[textureName] = textureData
+            TexData["%d-"%(i)+textureName] = textureData
 
             pointer += 8 #Each texture information occupy 8 bytes
         
@@ -61,6 +63,7 @@ class Editor:
         if(self.__read4Bytes(self.file) != 0x4e494250):
             raise Exception("Unsupported File Format")
         self.__extract()
+        self.__custom_texturecount = 0
 
     def assemble_and_save(self, filename):
         with open(filename, "wb") as file:
@@ -87,3 +90,31 @@ class Editor:
         
         with open(filename, "wb") as texfile:
             texfile.write(self.TexData[name])
+    
+    def add_texture(self, texture_filepath):
+        try:
+            texfile = open(texture_filepath, "rb")
+        except Exception as e:
+            raise Exception(e)
+        
+        data = texfile.read()
+        data_size = texfile.tell()
+        type, name = self.__texture_NameType(data)
+        
+        name = "CustomTexture%d-"%(self.__custom_texturecount) + name
+
+        uncompressed_size = data_size
+        if type == 'G-Zipped':
+            with gzip.open(texture_filepath, 'rb') as f:
+                f.seek(0,2)
+                uncompressed_size = f.tell()
+        
+        self.TexInfo.append({
+            'name': name,
+            'type': type,
+            'data_size': data_size,
+            'uncompressed_size': uncompressed_size
+        })
+        self.TexData[name] = data
+        self.texture_count += 1
+        self.__custom_texturecount += 1
