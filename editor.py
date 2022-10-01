@@ -9,8 +9,8 @@ class Editor:
         self.texture_count = self.__read4Bytes(file)
         self.textureinfo_offset = self.__read4Bytes(file)
 
-        TexInfo_list = []
-        TexData_list = {}
+        TexInfo = []
+        TexData = {}
         
         pointer = self.textureinfo_offset
         for i in range(self.texture_count):
@@ -40,18 +40,18 @@ class Editor:
                 textureType = "Uncompressed"
                 textureName = "%d-TEX1" % (i)
             
-            TexInfo_list.append({
+            TexInfo.append({
                 'name': textureName,
                 'type': textureType,
                 'data_size': textureData_size,
                 'uncompressed_size': uncompressed_size
             })
-            TexData_list[textureName] = textureData
+            TexData[textureName] = textureData
 
             pointer += 8 #Each texture information occupy 8 bytes
         
-        self.TexInfo_list = TexInfo_list
-        self.TexData_list = TexData_list
+        self.TexInfo = TexInfo
+        self.TexData = TexData
         
     def __init__(self, filepath) -> None:
         try:
@@ -61,3 +61,18 @@ class Editor:
         if(self.__read4Bytes(self.file) != 0x4e494250):
             raise Exception("Unsupported File Format")
         self.__extract()
+
+    def assemble_and_save(self, filename):
+        with open(filename, "wb") as file:
+            file.write(bytearray([0x50, 0x42, 0x49, 0x4E, 0x00, 0x00, 0x00, 0x00])) #Magic Bytes
+            file.write(self.texture_count.to_bytes(4, byteorder="little")) #No of textures
+            file.write(bytearray([0x10, 0x00, 0x00, 0x00])) #Beginning of pointers list which is always 0x10 after 16 byte header
+
+            texture_data_offset = 16 + 8*self.texture_count #16 byte header + 8 bytes info for each texture
+            for texture in self.TexInfo:
+                file.write(texture['uncompressed_size'].to_bytes(4, byteorder="little"))
+                file.write(texture_data_offset.to_bytes(4, byteorder="little"))
+                texture_data_offset += texture['data_size']
+
+            for texture in self.TexInfo:
+                file.write(self.TexData[texture['name']])

@@ -17,7 +17,7 @@ table = sg.Table(
 )
 layout = [
     [sg.Text('File: '), sg.In(size=(25,1), enable_events=True ,key='-FILE-'), sg.FileBrowse()],
-    [sg.Button("Open"), sg.VerticalSeparator(), sg.Button("Up"), sg.Button("Down")],
+    [sg.Button("Open"), sg.Button("Save"), sg.VerticalSeparator(), sg.Button("Up"), sg.Button("Down")],
     [table]
 ]
 
@@ -37,27 +37,31 @@ if __name__ == '__main__':
         elif event == 'Open':
             try:
                 editor = Editor(values['-FILE-'])
-                window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo_list), select_rows=[selected_texture])
+                window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[selected_texture])
             except Exception as e:
                 sg.popup(e)
         
         elif event == 'Up':
             index = selected_texture
             if(index > 0 and editor != None):
-                textures = editor.TexInfo_list
+                textures = editor.TexInfo
                 textures[index-1], textures[index] = textures[index], textures[index-1]
-                editor.TexInfo_list = textures
+                editor.TexInfo = textures
                 window['-TABLE-'].update(values=TexInfo_to_TableValues(textures), select_rows=[index-1])
 
         elif event == 'Down':
             index = selected_texture
-            if(editor != None and index < len(editor.TexData_list)-1 ):
-                textures = editor.TexInfo_list
+            if(editor != None and index < editor.texture_count-1 ):
+                textures = editor.TexInfo
                 textures[index+1], textures[index] = textures[index], textures[index+1]
-                editor.TexInfo_list = textures
+                editor.TexInfo = textures
                 window['-TABLE-'].update(values=TexInfo_to_TableValues(textures), select_rows=[index+1])
                 
         elif event == '-TABLE-':
             selected_texture = values['-TABLE-'][0]
+        
+        elif event == 'Save':
+            editor.assemble_and_save("out.bin")
+            sg.popup("Saved as "+"out.bin")
     
     window.close()
