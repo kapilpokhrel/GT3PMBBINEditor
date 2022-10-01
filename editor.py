@@ -76,3 +76,14 @@ class Editor:
 
             for texture in self.TexInfo:
                 file.write(self.TexData[texture['name']])
+    
+    def extract_texture(self, index):
+        name = self.TexInfo[index]['name']
+        filename = ""
+        if(self.TexInfo[index]['type'] == 'G-Zipped'):
+            filename = name.split('-', 1)[1]+'.gz'
+        else:
+            filename = name.split('-', 1)[1]+'.img'
+        
+        with open(filename, "wb") as texfile:
+            texfile.write(self.TexData[name])

@@ -17,7 +17,8 @@ table = sg.Table(
 )
 layout = [
     [sg.Text('File: '), sg.In(size=(25,1), enable_events=True ,key='-FILE-'), sg.FileBrowse()],
-    [sg.Button("Open"), sg.Button("Save"), sg.VerticalSeparator(), sg.Button("Up"), sg.Button("Down")],
+    [sg.Button("Open"), sg.Button("Save"), sg.VerticalSeparator(),
+        sg.Button("Extract"), sg.Button("Up"), sg.Button("Down")],
     [table]
 ]
 
@@ -63,5 +64,8 @@ if __name__ == '__main__':
         elif event == 'Save':
             editor.assemble_and_save("out.bin")
             sg.popup("Saved as "+"out.bin")
+        
+        elif event == 'Extract':
+            editor.extract_texture(selected_texture)
     
     window.close()
