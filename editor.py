@@ -117,3 +117,8 @@ class Editor:
         self.TexData[name] = data
         self.texture_count += 1
         self.__custom_texturecount += 1
+    
+    def remove_texture(self, index):
+        del self.TexData[self.TexInfo[index]['name']]
+        del self.TexInfo[index]
+        self.texture_count -= 1
