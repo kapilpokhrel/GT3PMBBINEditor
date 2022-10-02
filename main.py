@@ -16,7 +16,6 @@ table = sg.Table(
     select_mode=sg.TABLE_SELECT_MODE_BROWSE
 )
 layout = [
-    [sg.Text('File: '), sg.In(size=(25,1), enable_events=True ,key='-FILE-'), sg.FileBrowse()],
     [sg.Button("Open"), sg.Button("Save"), sg.VerticalSeparator(),
         sg.Button("Extract"), sg.Button("Up"), sg.Button("Down"), sg.Button("Add"), sg.Button("Remove")],
     [table]
@@ -37,7 +36,8 @@ if __name__ == '__main__':
 
         elif event == 'Open':
             try:
-                editor = Editor(values['-FILE-'])
+                filepath = sg.popup_get_file("Choose the .bin file to edit.")
+                editor = Editor(filepath)
                 window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[selected_texture])
             except Exception as e:
                 sg.popup(e)
@@ -70,7 +70,8 @@ if __name__ == '__main__':
         
         elif event == 'Add':
             try:
-                editor.add_texture(values['-FILE-'])
+                filepath = sg.popup_get_file("Choose the texture file to add.")
+                editor.add_texture(filepath)
                 window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[editor.texture_count-1])
             except Exception as e:
                 sg.popup(e)
