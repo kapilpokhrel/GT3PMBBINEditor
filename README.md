@@ -12,9 +12,9 @@ and you can run using
 python main.py
 ```
 
-To build the executable file for yourself, run the following command and you'll have the executable inside the dist folder.
+To build the stand alone executable file for yourself, run the following command and you'll have the executable inside the dist folder.
 ```
-pyinstaller -F main.py
+pyinstaller -F -n "GT3PMBBINEditor" main.py
 ```
 
 ## Credits
