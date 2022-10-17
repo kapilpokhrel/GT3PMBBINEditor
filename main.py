@@ -62,24 +62,28 @@ if __name__ == '__main__':
             selected_texture = values['-TABLE-'][0]
         
         elif event == 'Save':
-            editor.assemble_and_save("out.bin")
-            sg.popup("Saved as "+"out.bin")
+            if(editor != None):
+                editor.assemble_and_save("out.bin")
+                sg.popup("Saved as "+"out.bin")
         
         elif event == 'Extract':
-            editor.extract_texture(selected_texture)
+            if(editor != None):
+                editor.extract_texture(selected_texture)
         
         elif event == 'Add':
-            try:
-                filepath = sg.popup_get_file("Choose the texture file to add.")
-                editor.add_texture(filepath)
-                window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[editor.texture_count-1])
-            except Exception as e:
-                sg.popup(e)
+            if(editor != None):
+                try:
+                    filepath = sg.popup_get_file("Choose the texture file to add.")
+                    editor.add_texture(filepath)
+                    window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[editor.texture_count-1])
+                except Exception as e:
+                    sg.popup(e)
         
         elif event == 'Remove':
-            editor.remove_texture(selected_texture)
-            selected_texture = min(selected_texture, editor.texture_count-1)
-            window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[selected_texture])
+            if(editor != None):
+                editor.remove_texture(selected_texture)
+                selected_texture = min(selected_texture, editor.texture_count-1)
+                window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[selected_texture])
             
     
     window.close()
