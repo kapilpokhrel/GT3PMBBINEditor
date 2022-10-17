@@ -59,7 +59,10 @@ if __name__ == '__main__':
                 window['-TABLE-'].update(values=TexInfo_to_TableValues(textures), select_rows=[index+1])
                 
         elif event == '-TABLE-':
-            selected_texture = values['-TABLE-'][0]
+            if(len(values['-TABLE-']) >= 1):
+                selected_texture = values['-TABLE-'][0]
+            else:
+                selected_texture = 0
         
         elif event == 'Save':
             if(editor != None):
@@ -80,10 +83,13 @@ if __name__ == '__main__':
                     sg.popup(e)
         
         elif event == 'Remove':
-            if(editor != None):
+            if(editor != None and editor.texture_count):
                 editor.remove_texture(selected_texture)
                 selected_texture = min(selected_texture, editor.texture_count-1)
-                window['-TABLE-'].update(values=TexInfo_to_TableValues(editor.TexInfo), select_rows=[selected_texture])
+                window['-TABLE-'].update(
+                    values=TexInfo_to_TableValues(editor.TexInfo),
+                    select_rows=[] if editor.texture_count == 0 else [selected_texture]
+                )
             
     
     window.close()
