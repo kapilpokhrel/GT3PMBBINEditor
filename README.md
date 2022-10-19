@@ -6,7 +6,7 @@ Simple tool for editing Gran Turismo 3 PMB.bin files, which are created by BTEST
 
 ## Running the Script
 Standalone executables are provided inside the bins folder, you can just double click the executable to use the editor.  
-If you wish to run the python script or the build the executable for youself then first you have to have python installer and you have to build the dependency with
+If you wish to run the python script or the build the executable for youself then first you have to have python installed and you have to build the dependency with
 ```
 pip install -r requirements.txt
 ```
@@ -25,3 +25,6 @@ pyinstaller -F -n "GT3PMBBINEditor" main.py
 - Misuka ミ ス カ - File format reverse engineering
 - [kapilpokhrel](https://github.com/kapilpokhrel/) - Programming
 - [BTEST4HE](https://github.com/BTEST4HE) - GT3MBLPMBTools creator
+
+## Other Resources for Gran Turismo 3 modification
+- [GT3ADSINFEditor](https://github.com/kapilpokhrel/GT3ADSINFEditor)
